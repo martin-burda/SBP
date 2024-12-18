@@ -1,0 +1,76 @@
+---
+title: "Cdensity"
+date: 
+output: pdf_document
+urlcolor: blue
+geometry: margin=0.75in
+---
+ 
+Install and load required packages
+```{r, message=FALSE}
+if (!require("ggplot2")) install.packages("ggplot2") 
+if (!require("metR")) install.packages("metR")
+if (!require("RColorBrewer")) install.packages("RColorBrewer")
+if (!require("fields")) install.packages("fields")
+
+library(ggplot2)
+library(fields)
+library(metR)
+library(RColorBrewer)
+```
+
+Copula density over a grid
+```{r}
+um <- read.table(file = "sc1_um.out", header = FALSE) 
+cdat <- read.table(file = "sc1_cdens2.out", header = FALSE) 
+colnames(cdat) <- c("x", "y", "cdens")
+cdat$cdens[cdat$cdens>2] <- 2 
+```
+
+```{r, fig.width=4, fig.height=4}
+d1 <- 6
+d2 <- 7
+mnames <- c('IJH', 'IJR')
+
+ggplot() + 
+  geom_contour_fill(data=cdat, aes(x=x, y=y, z=cdens), bins=50) + 
+  scale_fill_gradient(low = "white", high = "darkgreen", limits = c(0., 0.8)) + 
+  geom_point(data=um, aes(x=um[,d1],y=um[,d2]), size=0.4, color='red') +  
+  labs(x=mnames[1], y=mnames[2], title="") +
+  theme_minimal() + 
+  theme(panel.grid.minor=element_blank()) + 
+  theme(panel.grid.major=element_blank()) +
+  theme(axis.ticks = element_line()) +  
+  theme(legend.position="none") 
+
+ggsave("cdens.png")
+```
+
+3D copula density over a grid
+```{r, fig.width=4, fig.height=4}
+par(mai=c(0.4, 0.4, 0.05, 0.05))
+gsz <- 99
+ 
+lb1 <- min(cdat[,1])
+ub1 <- max(cdat[,1])
+lb2 <- min(cdat[,2])
+ub2 <- max(cdat[,2])
+ 
+stp1 = (ub1-lb1)/(gsz-1) 
+stp2 = (ub2-lb2)/(gsz-1) 
+ 
+x <- seq(lb1,ub1, length.out=gsz)
+y <- seq(lb2,ub2, length.out=gsz)
+fn <- matrix(cdat[,3], nrow=gsz, ncol=gsz, byrow=TRUE)
+ 
+png(file="cdens3D.png")
+
+line_palette <- colorRampPalette(c("white", "darkgreen", "blue"))(100)
+
+drape.plot(x, y, fn, col = line_palette, border = rgb(0, 0, 0, alpha = 0.1),
+          zlim=c(0,max(fn)),zlim2=c(0.05,max(fn)), 
+          add.legend = FALSE, horizontal = TRUE, axes = TRUE,
+          theta = 25, phi = 40, ylab="IJR", xlab="IJH", zlab="copula density")
+
+dev.off()
+```

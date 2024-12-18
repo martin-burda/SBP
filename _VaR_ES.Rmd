@@ -1,0 +1,89 @@
+---
+title: "VaR_ES"
+date: 
+output: pdf_document
+urlcolor: blue
+geometry: margin=0.75in
+---
+ 
+\vspace{-0.1in}
+Install and load required packages
+```{r, message=FALSE}
+if (!require("fields")) install.packages("fields")
+library(quantmod) 
+library(ggplot2)  
+library(fields)
+```
+
+Simulations 
+```{r}
+um <- read.table(file = "sc1_um.out", header = FALSE) 
+sim <- read.table(file = "sc1_CMsim.out", header=FALSE)
+colnames(sim) <- c('mc', 'sim', 'd', 'C', 'M')
+```
+
+Simulation: Copula bivariate plots
+```{r, fig.width=4, fig.height=4}
+d1 <- 6
+d2 <- 7
+mnames <- c('IJH', 'IJR')
+
+c1 <- sim[sim$d==d1,'C']
+c2 <- sim[sim$d==d2,'C']
+Csim <- data.frame(cbind(c1,c2))
+
+colnames(Csim) <- mnames
+
+ggplot() + 
+  geom_point(data=Csim, aes(x=IJH,y=IJR), size=0.4, color='darkblue', alpha=0.05) +
+  geom_point(data=um, aes(x=um[,d1],y=um[,d2]), size=0.4, color='red') +
+  labs(x="IJH", y="IJR", title="") +
+  theme_minimal() + 
+  theme(panel.grid.minor=element_blank()) + theme(panel.grid.major=element_blank()) +
+  theme(axis.ticks = element_line()) +
+  theme(legend.position="none") 
+
+ggsave("csim.png")
+```
+
+7-DIM PORTFOLIO 
+```{r}
+symbols <- c("IUSB", "IVV", "IDEV", "IEMG", "IAGG", "IJH", "IJR")
+getSymbols(Symbols=symbols)
+prices <- makePriceFrame(symbols)
+log_returns <- diff(log(prices), lag=1)
+log_returns <- na.omit(log_returns)
+log_returns <- window(log_returns, start=as.Date("2022-01-01"), end=as.Date("2024-05-31"))
+```
+
+output
+```{r, fig.width=8, fig.height=4}
+VE <- read.table(file = "sc1_VE.out", header=FALSE)
+colnames(VE) <- c('Tn', 'VaR', 'ES')
+
+elrt <- exp(log_returns)
+elrt$pf <- (0.345*elrt[,1] + 0.331*elrt[,2] + 0.17*elrt[,3] + 
+            0.06*elrt[,4] + 0.058*elrt[,5] + 0.02*elrt[,6] + 0.009*elrt[,7])
+lrt <- log(elrt$pf)
+lrt <- window(lrt, start=as.Date("2022-01-01"), end=as.Date("2024-05-31"))
+lrt <- tail(lrt, 253)
+
+lrt$VaR <- VE$VaR
+lrt$ES <- VE$ES
+
+scolors <- c("log returns"="black", "Value at Risk"="blue", "Expected Shortfall"="red")
+
+ggplot() + 
+  geom_line(data=lrt, aes(x=index(lrt), y=pf, color="log returns")) +    
+  geom_line(data=lrt, aes(x=index(lrt), y=VaR, color="Value at Risk")) +
+  geom_line(data=lrt, aes(x=index(lrt), y=ES, color="Expected Shortfall")) +    
+  labs(x="Date", y="Portfolio Financial Indicators", title="") +
+  scale_x_date(date_breaks="2 months", date_labels = "%Y-%m") + 
+  theme_minimal() + theme(legend.position = c(0.15, 0.92)) + 
+  theme(plot.title=element_text(size=10), legend.text=element_text(size=rel(0.8)), 
+        legend.key.size = unit(1., 'lines')) +
+  scale_color_manual(name="", values=scolors) + 
+  guides(color = guide_legend(override.aes = list(linetype = 1, linewidth = 2))) 
+                                                  
+ggsave("VaR_ES.png")
+```

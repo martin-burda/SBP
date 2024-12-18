@@ -1,0 +1,74 @@
+---
+title: "Data download"
+date: 
+output: pdf_document
+urlcolor: blue
+geometry: margin=0.75in
+---
+ 
+Install and load required packages
+```{r, message=FALSE, warning=FALSE}
+if (!require("quantmod")) install.packages("quantmod")
+if (!require("timetk")) install.packages("timetk")
+if (!require("ggplot2")) install.packages("ggplot2") 
+if (!require("gridExtra")) install.packages("gridExtra") 
+if (!require("qmao")) install.packages("qmao", 
+  repos=c("http://R-Forge.R-project.org", "http://cran.at.r-project.org"),
+  dependencies=TRUE)
+if (!require("fitdistrplus")) install.packages("fitdistrplus")
+if (!require("edfun")) install.packages("edfun")
+if (!require("ggpubr")) install.packages("ggpubr")
+
+library(quantmod) 
+library(ggplot2)  
+library(gridExtra)
+library(qmao)     
+library(fitdistrplus)
+library(edfun)   
+library(ggpubr)
+```
+
+AOR iShares Portfolio has been named by Forbes as the [best core balanced ETF](https://www.forbes.com/advisor/investing/best-balanced-etfs/). It is composed of 7 [portfolio holdings](https://www.ishares.com/us/products/239756/ishares-growth-allocation-etf) (other than <0.2% cash).
+
+```{r, message=FALSE, warning=FALSE}
+symbols <- c("IUSB", "IVV", "IDEV", "IEMG", "IAGG", "IJH", "IJR")
+getSymbols(Symbols=symbols)
+prices <- makePriceFrame(symbols)
+log_returns <- diff(log(prices), lag=1)
+log_returns <- na.omit(log_returns)
+log_returns <- window(log_returns, start=as.Date("2022-01-01"), end=as.Date("2024-05-31"))
+nrow(log_returns)
+
+write.table(log_returns, file="log_returns.csv", row.names=FALSE, col.names=TRUE, sep=",")
+write.table(log_returns, file="log_returns.txt", row.names=FALSE, col.names=FALSE, sep=" ")
+
+j <- 6
+k <- 7
+log_returns2 <- log_returns[,c(j,k)]
+write.table(log_returns2, file="log_returns2.txt", row.names=FALSE, col.names=FALSE, sep=" ")
+```
+
+Plot data 
+```{r, fig.width=7, fig.height=8}
+colors <- c("IUSB"="red", "IVV"="blue", "IDEV"="cyan", "IEMG"="darkgreen",
+            "IAGG"="violet", "IJH"="gold", "IJR"="gray")
+
+create_plot <- function(data, column_name, label) {
+  ggplot(data=data) + 
+    geom_line(aes(x=index(data), y = .data[[column_name]]), color="black") + 
+    labs(x="", y=label, title="") + 
+    ylim(c(-0.05, 0.08)) + 
+    theme_minimal() + theme(legend.position="none") +
+    theme(panel.grid.major = element_line(linewidth=0.1)) + 
+    theme(panel.grid.minor = element_blank()) +
+    scale_x_date(date_breaks="3 months", date_labels = "%Y-%m") +
+    theme(plot.margin = unit(c(-1,0,-1,0.5), 'lines'), axis.text=element_text(size=6))
+}
+
+plots <- lapply(1:length(symbols), function(i) create_plot(log_returns, symbols[i], symbols[i]))
+
+ggpubr::ggarrange(plotlist = plots, ncol=1, nrow=7)
+
+ggsave("log_returns.png")
+```
+

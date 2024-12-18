@@ -1,0 +1,89 @@
+---
+title: "Sparsity"
+date: 
+output: pdf_document
+urlcolor: blue
+geometry: margin=0.75in
+---
+
+Install and load required packages 
+```{r}
+if (!require("fields")) install.packages("fields")
+if (!require("MASS")) install.packages("MASS")
+library(fields)
+library(MASS)
+```
+
+sh output
+```{r}
+sh <- read.table("ac3_sh2_2.out")
+colnames(sh) <- c("i", "s", "h1", "h2")
+```
+
+Level 3
+```{r, fig.width=4, fig.height=4}
+sh3 <- sh[sh$s==3,]
+par(mar=c(2.9, 2.9, 1, 1))
+plot(sh3$h1, sh3$h2, pch=15, cex=5.7, xlab="", ylab="")
+title(xlab="x nodes", line=2)
+title(ylab="y nodes", line=2)
+title(main="Level 3", line=0.4, cex.main=0.9)
+```
+
+Level 4
+```{r, fig.width=4, fig.height=4}
+sh4 <- sh[sh$s==4,]
+par(mar=c(2.9, 2.9, 1, 1))
+plot(sh4$h1, sh4$h2, pch=15, cex=2.7, xlab="", ylab="")
+title(xlab="x nodes", line=2)
+title(ylab="y nodes", line=2)
+title(main="Level 4", line=0.4, cex.main=0.9)
+```
+
+Level 5
+```{r, fig.width=4, fig.height=4}
+sh5 <- sh[sh$s==5,]
+par(mar=c(2.9, 2.9, 1, 1))
+plot(sh5$h1, sh5$h2, pch=15, cex=1.4, xlab="", ylab="")
+title(xlab="x nodes", line=2)
+title(ylab="y nodes", line=2)
+title(main="Level 5", line=0.4, cex.main=0.9)
+```
+
+Level 6
+```{r, fig.width=4, fig.height=4}
+sh6 <- sh[sh$s==6,]
+par(mar=c(2.9, 2.9, 1, 1))
+plot(sh6$h1, sh6$h2, pch=15, cex=0.7, xlab="", ylab="")
+title(xlab="x nodes", line=2)
+title(ylab="y nodes", line=2)
+title(main="Level 6", line=0.4, cex.main=0.9)
+```
+
+Level 7
+```{r, fig.width=4, fig.height=4}
+sh7 <- sh[sh$s==7,]
+par(mar=c(2.9, 2.9, 1, 1))
+plot(sh7$h1, sh7$h2, pch=15, cex=0.4, xlab="", ylab="")
+title(xlab="x nodes", line=2)
+title(ylab="y nodes", line=2)
+title(main="Level 7", line=0.4, cex.main=0.9)
+```
+
+Level 8
+```{r, fig.width=4, fig.height=4}
+sh8 <- sh[sh$s==8,]
+par(mar=c(2.9, 2.9, 1, 1))
+plot(sh8$h1, sh8$h2, pch=15, cex=0.3, xlab="", ylab="")
+title(xlab="x nodes", line=2)
+title(ylab="y nodes", line=2)
+title(main="Level 8", line=0.4, cex.main=0.9)
+```
+
+max fractions of full tree
+```{r}
+for (i in 4:7) {
+ x = 2^(i*2)
+ print(100/x)
+}
+```
