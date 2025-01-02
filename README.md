@@ -1,6 +1,6 @@
 # SBP
 
-This repository contains the implementation code of the paper "[Bayesian Adaptive Sparse Copula](https://www.economics.utoronto.ca/mburda/papers/sparsity.pdf)" by [Martin Burda](https://www.economics.utoronto.ca/mburda/) and [Artem Prokhorov](https://sites.google.com/site/artembprokhorov) (2024).
+This repository contains the implementation code of the paper "[Bayesian Adaptive Sparse Copula](https://www.economics.utoronto.ca/mburda/papers/sparsity.pdf)" by [Martin Burda](https://www.economics.utoronto.ca/mburda/) and [Artem Prokhorov](https://sites.google.com/site/artembprokhorov) (2025).
 
 The code is written in [Modern Fortran](https://fortran-lang.org/), and it is portable across any compiler and platform that supports the F2008 standard. The code is designed with scalable [parallelization](https://wvuhpc.github.io/Modern-Fortran/20-Parallel-Programming/index.html). If [MPI](https://github.com/open-mpi/ompi) is available and enabled with a compilation flag (e.g. -D_MPI for mpifort) then MPI-specific code and communication libraries will be accessed by the compiler, resulting in faster run time on multi-core processors or distributed compting nodes. If MPI is not available, the slower serial version of the program will be compiled and can be executed on a single processor with a longer run time. 
 
