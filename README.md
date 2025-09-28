@@ -44,3 +44,6 @@ Compile and run the code with:
 Object, module, and executable files are removed with:
 
 <span style="font-family: monospace;">make clean</span>
+
+# Simulations
+The files used in the Monte Carlo simulation of the paper are included in the folder Simulations. We used R files (subfolder R_sim) for generating the simulated data, plotting figures, and obtaining summary statistics, and Fortran files (subfolder Fortran_sim) for running the code implementation on the simulated data. Bash shell files for compilation are included.
